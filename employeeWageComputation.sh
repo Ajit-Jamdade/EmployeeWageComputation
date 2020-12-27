@@ -1,40 +1,57 @@
 #! /bin/bash -x
 
 echo "Welcome to Employee Wage Computation"
+#echo ""
 
 # CONSTANTS FOR THE PROGRAM
-IS_PART_TIME=1;
-IS_FULL_TIME=2;
-MAX_HRS_IN_MONTH=100;
-EMP_RATE_PER_HR=20;
-NUM_WORKING_DAYS=20;
+isPartTime=1;
+isFullTime=2;
+maxHrsInMonth=100;
+empRatePerHr=20;
+numWorkingDays=20;
 
 # VARIABLES
 totalEmpHr=0;
 totalWorkingDays=0;
 
+declare -A dailyWage
 function getWorkingHours(){
         local empCheck=$1
-	case $empCheck in
-		$IS_FULL_TIME)
+	case "$empCheck" in
+		"$isFullTime")
                 	empHrs=8
                         ;;
-                $IS_PART_TIME)
+                "$isPartTime")
                         empHrs=4
                         ;;
                 *)
                         empHrs=0
                         ;;
         esac
-echo $empHrs
+	getEmpHrs=$empHrs
+#	echo "On day "$totalWorkingDays", employee worked "$getEmpHrs" hours."
 }
 
-while [[ $totalEmpHr -lt $MAX_HRS_IN_MONTH && $totalWorkingDays -lt $NUM_WORKING_DAYS ]]
+function getDailyWage(){
+        local empCheck=$1
+        wage=$(( empCheck * empRatePerHr ))
+#	echo "Day "$totalWorkingDays" salary is "$wage"."
+	elements=$wage
+#	echo ""
+}
+
+while [[ $totalEmpHr -lt $maxHrsInMonth && $totalWorkingDays -lt $numWorkingDays ]]
 do
         ((totalWorkingDays++))
-        empHrs="$( getWorkingHours $((RANDOM%3)))";
-        totalEmpHr=$(( $totalEmpHr + $empHrs ));
-	dailySalary=$((empHrs*EMP_RATE_PER_HR))
+	randCheck=$((RANDOM%3))
+        getWorkingHours $randCheck
+        totalEmpHr=$(( totalEmpHr + getEmpHrs ));
+	getDailyWage $getEmpHrs
+	dailyWage["Day"$totalWorkingDays]=$elements
 done
 
-totalSalary=$(( $totalEmpHr * $EMP_RATE_PER_HR ));
+totalSalary=$(( totalEmpHr * empRatePerHr ));
+echo "Daily Wage "${dailyWage[@]}
+echo "Keys are "${!dailyWage[@]}
+#echo "On month completion, employee worked for "$totalWorkingDays" days, contributing "$totalEmpHr" hours."
+#echo "Earned monthly salary is "$totalSalary"."
